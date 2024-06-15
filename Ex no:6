@@ -1,1 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
 
+typedef struct {
+    int top;
+    int items[100];
+} Stack;
+
+void push(Stack* stack, int value) {
+    stack->items[++stack->top] = value;
+}
+
+int pop(Stack* stack) {
+    return stack->items[stack->top--];
+}
+
+int peek(Stack* stack) {
+    return stack->items[stack->top];
+}
+
+int precedence(char op) {
+    if (op == '+' || op == '-') return 1;
+    if (op == '*' || op == '/') return 2;
+    return 0;
+}
+
+int applyOp(int a, int b, char op) {
+    switch (op) {
+        case '+': return a + b;
+        case '-': return a - b;
+        case '*': return a * b;
+        case '/': return a / b;
+    }
+    return 0;
+}
+
+int evaluate(char* tokens) {
+    Stack values, ops;
+    values.top = ops.top = -1;
+    for (int i = 0; i < strlen(tokens); i++) {
+        if (tokens[i] == ' ') continue;
+        if (tokens[i] == '(') {
+            push(&ops, tokens[i]);
+        } else if (isdigit(tokens[i])) {
+            int val = 0;
+            while (i < strlen(tokens) && isdigit(tokens[i])) {
+                val = (val * 10) + (tokens[i] - '0');
+                i++;
+            }
+            push(&values, val);
+            i--;
+        } else if (tokens[i] == ')') {
+            while (peek(&ops) != '(') {
+                int val2 = pop(&values);
+                int val1 = pop(&values);
+                char op = pop(&ops);
+                push(&values, applyOp(val1, val2, op));
+            }
+            pop(&ops);
+        } else {
+            while (ops.top != -1 && precedence(peek(&ops)) >= precedence(tokens[i])) {
+                int val2 = pop(&values);
+                int val1 = pop(&values);
+                char op = pop(&ops);
+                push(&values, applyOp(val1, val2, op));
+            }
+            push(&ops, tokens[i]);
+        }
+    }
+    while (ops.top != -1) {
+        int val2 = pop(&values);
+        int val1 = pop(&values);
+        char op = pop(&ops);
+        push(&values, applyOp(val1, val2, op));
+    }
+    return pop(&values);
+}
+
+int main() {
+    char expression[] = "3 + 5 * ( 2 - 8 )";
+    printf("The result of the expression '%s' is: %d\n", expression, evaluate(expression));
+    return 0;
+}
