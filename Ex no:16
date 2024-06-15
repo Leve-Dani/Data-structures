@@ -1,0 +1,71 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define TABLE_SIZE 10
+
+typedef struct {
+    int key;
+    int value;
+} HashItem;
+
+HashItem *hashTable[TABLE_SIZE];
+
+int hashCode(int key) {
+    return key % TABLE_SIZE;
+}
+
+void insert(int key, int value) {
+    int hashIndex = hashCode(key);
+    int originalIndex = hashIndex;
+    int i = 1;
+
+    while (hashTable[hashIndex] != NULL) {
+        hashIndex = (originalIndex + i) % TABLE_SIZE;
+        i++;
+    }
+    HashItem *newItem = (HashItem *)malloc(sizeof(HashItem));
+    newItem->key = key;
+    newItem->value = value;
+    hashTable[hashIndex] = newItem;
+}
+
+int search(int key) {
+    int hashIndex = hashCode(key);
+    int originalIndex = hashIndex;
+    int i = 1;
+
+    while (hashTable[hashIndex] != NULL) {
+        if (hashTable[hashIndex]->key == key)
+            return hashTable[hashIndex]->value;
+        hashIndex = (originalIndex + i) % TABLE_SIZE;
+        i++;
+    }
+    return -1;
+}
+
+void display() {
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        if (hashTable[i] != NULL)
+            printf("(%d, %d) ", hashTable[i]->key, hashTable[i]->value);
+        else
+            printf("(~~) ");
+    }
+    printf("\n");
+}
+
+int main() {
+    insert(1, 20);
+    insert(2, 70);
+    insert(42, 80);
+    insert(4, 25);
+    insert(12, 44);
+    insert(14, 32);
+    insert(17, 11);
+    insert(13, 78);
+    insert(37, 97);
+
+    display();
+
+    printf("Value for key 37: %d\n", search(37));
+    return 0;
+}
