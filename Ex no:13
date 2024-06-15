@@ -1,0 +1,58 @@
+ #include<stdio.h>
+ #include<stdbool.h>
+ #include<string.h>
+ #define INF 9999999
+ int main() {
+ int n, i, j, G[10][10], s=0;
+ int no_edge; // number of edge
+ printf("Enter number of vertices");
+ scanf("%d", &n);
+ printf("Enter values for adjacency Matrix of Weighted Graph");
+ for(i=0;i<n;i++)
+ for(j=0;j<n;j++)
+ scanf("%d",&G[i][j]);
+ // create a array to track selected vertex
+ // selected will become true otherwise false
+ int selected[n];
+ // set selected false initially
+ memset(selected, false, sizeof(selected));
+ // set number of edge to 0
+ no_edge = 0;
+ // the number of egde in minimum spanning tree will be
+ // always less than (V-1), where V is number of vertices in
+ //graph
+ // choose 0th vertex and make it true
+ selected[0] = true;
+ int x; // row number
+ int y; // col number
+ // print for edge and weight
+printf("Edge : Weight\n");
+ while (no_edge < n- 1) {
+ //For every vertex in the set S, find the all adjacent vertices
+ // , calculate the distance from the vertex selected at step 1.
+ // if the vertex is already in the set S, discard it otherwise
+ //choose another vertex nearest to selected vertex at step 1.
+ int min = INF;
+ x =0;
+ y =0;
+ for (int i = 0; i < n; i++) {
+ if (selected[i]) {
+ for (int j = 0; j < n; j++) {
+ if (!selected[j] && G[i][j]) { // not in selected and there is an edge
+ if (min > G[i][j]) {
+ min = G[i][j];
+ x =i;
+ y =j;
+ }
+ }
+ }
+ }
+ }
+ printf("%d- %d : %d\n", x, y, G[x][y]);
+ s= s+G[x][y];
+ selected[y] = true;
+ no_edge++;
+ }
+ printf("The minimum spanning tree of given Graph is %d", s);
+ return 0;
+ }
